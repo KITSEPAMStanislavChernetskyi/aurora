@@ -1,10 +1,10 @@
+/* eslint-disable no-param-reassign */
 import React, { Component } from "react";
 import PropTypes from "prop-types";
-import { CSSTransition } from "react-transition-group";
 import Portal from "../PopOver/PopOverPortal";
-import PopOver from "../PopOver/index";
-import { StyledTooltip } from "./Tooltip.styles";
 import SPACE_FROM_MOUSE from "./constants";
+import PopOver from "../PopOver/index";
+import { getDimensionsFromEvent, getArrowAdjustmentFromPosition } from './utils';
 import {
   DIRECTIONS,
   TOP,
@@ -14,150 +14,66 @@ import {
   VARIANTS,
   LIGHT,
   AUTO,
-  ARROW_WIDTH
 } from "../constants";
+import Tooltip from "./Tooltip";
 
-class Tooltip extends Component {
-  constructor(props) {
-    super(props);
-
-    this.myRef = React.createRef();
-    this.dimensions = {
-      width: 0,
-      height: 0,
-      windowScroll: 0,
-      windowWidth: 0,
-      windowHeight: 0
-    };
-
-    this.pos = {
-      x: 0,
-      y: 0
-    };
-
-    this.state = {
-      actualDirection: props.direction,
-      arrowAdjustment: 0
-    };
-  }
-
-  componentDidUpdate(prevProps) {
-    /*
-     * This causes force update of the tooltip position if we use only one tooltip and we transiotion from
-     * one zone that triggers the tooltip to another that triggers the same tooltip but with different place to display
-     */
-    const {
-      position: { elHorizontalCenter, elVerticalCenter },
-      isVisible,
-      direction,
-      position,
-      spaceFromMouse,
-      reduceTop,
-      reduceBottom
-    } = this.props;
-    if (
-      (prevProps.position.elHorizontalCenter !== elHorizontalCenter ||
-        prevProps.position.elVerticalCenter !== elVerticalCenter) &&
-      isVisible &&
-      prevProps.isVisible === isVisible
-    ) {
-      const reduce = { top: reduceTop, bottom: reduceBottom };
-      this.updateSize();
-      this.pos = this.calculatePosition({
-        direction,
-        position,
-        dimensions: this.dimensions,
-        spaceFromMouse,
-        reduce
-      });
-
-      this.myRef.current.style.top = `${this.pos.y}px`;
-      this.myRef.current.style.left = `${this.pos.x}px`;
-    }
-  }
+class TooltipContainer extends Component {
+  state = {
+    actualDirection: this.props.direction,
+    arrowAdjustment: 0
+  };
 
   /*
-   * Static function that needs to be called from the parent -> Tooltip.getDimensionsFromEvent
-   * The parent should pass the click event which will trigger showing the Tooltip.
-   * By default the Tooltip is shown withing the view port. If we need to show it inside
-   * certain element we should pass the html element as second parameter.
-   * The function will return an object that should be provided to the Tooltip as props.
-   */
-  static getDimensionsFromEvent(e, parent) {
-    const {
-      y: elTop,
-      height: elHeight,
-      x: elLeft,
-      width: elWidth
-    } = e.target.getBoundingClientRect();
-    const {
-      y: offsetTop = 0,
-      height: clientHeight = 100000,
-      x: offsetLeft = 0,
-      width: clientWidth = 100000
-    } =
-      parent && parent.getBoundingClientRect
-        ? parent.getBoundingClientRect()
-        : {};
-
-    return {
-      elTop,
-      elLeft,
-      elWidth,
-      elBottom: elTop + elHeight,
-      elRight: elLeft + elWidth,
-      offsetTop,
-      clientHeight,
-      offsetLeft,
-      clientWidth,
-      elHorizontalCenter: elLeft + elWidth / 2,
-      elVerticalCenter: elTop + elHeight / 2
-    };
-  }
+  * Static function that needs to be called from the parent -> Tooltip.getDimensionsFromEvent
+  * The parent should pass the click event which will trigger showing the Tooltip.
+  * By default the Tooltip is shown withing the view port. If we need to show it inside
+  * certain element we should pass the html element as second parameter.
+  * The function will return an object that should be provided to the Tooltip as props.
+  */
+  static getDimensionsFromEvent = getDimensionsFromEvent;
 
   getPositionAndUpdateDirection = ({
     position,
-    dimensions,
+    width,
+    height,
     spaceFromMouse,
     reduce
   }) => {
+    const { windowScroll, windowWidth, windowHeight } = position;
     const result = PopOver.calculatePosition({
       position,
-      dimensions,
+      dimensions: {
+        width,
+        height,
+        windowScroll,
+        windowWidth,
+        windowHeight
+      },
       spaceFromMouse,
       reduce
     });
     const { actualDirection, arrowAdjustment } = this.state;
-
-    const adjustment = this.adjustArrow({
-      coords: { x: result.x, width: dimensions.width },
+    
+    const adjustment = getArrowAdjustmentFromPosition({
+      coords: { x: result.x, width },
       position
     });
+    console.log('on enter'); // eslint-disable-line
 
     if (
-      result.y < position.elTop + dimensions.windowScroll &&
+      result.y < position.elTop + windowScroll &&
       (actualDirection !== TOP || arrowAdjustment !== adjustment)
     ) {
       this.setState({ actualDirection: TOP, arrowAdjustment: adjustment });
     } else if (
-      result.y > position.elTop + dimensions.windowScroll &&
+      result.y > position.elTop + windowScroll &&
       (actualDirection !== BOTTOM || arrowAdjustment !== adjustment)
     ) {
       this.setState({ actualDirection: BOTTOM, arrowAdjustment: adjustment });
     }
-
     return result;
   };
 
-  adjustArrow = ({ coords, position }) => {
-    const reqCenter = position.elHorizontalCenter;
-    const currentCenter = coords.x + coords.width / 2;
-    const mostLeft = coords.x + ARROW_WIDTH / 2;
-    const mostRight = coords.x + coords.width + ARROW_WIDTH / 2;
-    const center = Math.min(Math.max(mostLeft, reqCenter), mostRight);
-
-    return center - currentCenter;
-  };
 
   /*
    * Function that determines Tooltip position.
@@ -169,12 +85,19 @@ class Tooltip extends Component {
   calculatePosition = ({
     direction,
     position,
-    dimensions,
     spaceFromMouse,
-    reduce
+    reduce,
+    height,
+    width
   }) => {
-    const { width, height, windowScroll } = dimensions;
-    const { elBottom, elTop, elLeft, elRight, elHorizontalCenter } = position;
+    const {
+      elBottom,
+      elTop,
+      elLeft,
+      elRight,
+      elHorizontalCenter,
+      windowScroll
+    } = position;
 
     const bottomPosition = elBottom + SPACE_FROM_MOUSE;
     const topPosition = elTop - SPACE_FROM_MOUSE - height + windowScroll;
@@ -202,74 +125,16 @@ class Tooltip extends Component {
         };
       default:
         return this.getPositionAndUpdateDirection({
-          direction,
           position,
-          dimensions,
           spaceFromMouse,
-          reduce
+          reduce,
+          width,
+          height
         });
     }
   };
 
-  updateSize = () => {
-    const { isVisible } = this.props;
-    const {
-      windowScroll,
-      windowWidth,
-      windowHeight,
-      width,
-      height
-    } = this.dimensions;
-    const dimensions = {};
-    if (global.window && isVisible) {
-      const {
-        clientWidth,
-        clientHeight
-      } = global.window.document.documentElement;
-
-      const scrollTop = Math.max(
-        global.window.pageYOffset,
-        global.document.documentElement.scrollTop,
-        global.document.body.scrollTop
-      );
-
-      if (scrollTop !== windowScroll) {
-        dimensions.windowScroll = scrollTop;
-      }
-
-      if (clientWidth !== windowWidth) {
-        dimensions.windowWidth = clientWidth;
-      }
-
-      if (clientHeight !== windowHeight) {
-        dimensions.windowHeight = clientHeight;
-      }
-    }
-
-    if (this.myRef.current) {
-      const { clientWidth, clientHeight } = this.myRef.current;
-
-      if (width !== clientWidth && clientWidth) {
-        dimensions.width = clientWidth;
-      }
-
-      if (height !== clientHeight && clientHeight) {
-        dimensions.height = clientHeight;
-      }
-    }
-
-    if (Object.keys(dimensions).length) {
-      this.dimensions = {
-        ...this.dimensions,
-        ...dimensions
-      };
-      return true;
-    }
-
-    return false;
-  };
-
-  tooltipEnter = () => {
+  tooltipEnter = node => {
     const {
       isVisible,
       position,
@@ -279,53 +144,46 @@ class Tooltip extends Component {
       reduceBottom
     } = this.props;
 
-    if (isVisible) {
-      const reduce = { top: reduceTop, bottom: reduceBottom };
-      this.updateSize();
-      this.pos = this.calculatePosition({
-        direction,
-        position,
-        dimensions: this.dimensions,
-        spaceFromMouse,
-        reduce
-      });
+    if (!isVisible) {
+      return;
     }
 
-    this.myRef.current.style.top = `${this.pos.y}px`;
-    this.myRef.current.style.left = `${this.pos.x}px`;
+    const reduce = { top: reduceTop, bottom: reduceBottom };
+    const { clientWidth, clientHeight } = node;
+
+    const { y, x } = this.calculatePosition({
+      direction,
+      position,
+      width: clientWidth,
+      height: clientHeight,
+      spaceFromMouse,
+      reduce
+    });
+
+    node.style.top = `${y}px`;
+    node.style.left = `${x}px`;
   };
 
   render() {
-    const { children, isVisible, variant, ...rest } = this.props;
+    const { direction, children, ...rest } = this.props;
     const { actualDirection, arrowAdjustment } = this.state;
 
     return (
       <Portal>
-        <CSSTransition
-          in={isVisible}
-          key="tooltip-animation"
-          timeout={300}
-          classNames="open"
+        <Tooltip
+          {...rest}
+          direction={actualDirection}
+          arrowAdjustment={arrowAdjustment}
           onEnter={this.tooltipEnter}
-          appear={isVisible}
-          variant={variant}
         >
-          <StyledTooltip
-            ref={this.myRef}
-            isVisible={isVisible}
-            {...rest}
-            direction={actualDirection}
-            arrowAdjustment={`${arrowAdjustment}px`}
-          >
-            {children}
-          </StyledTooltip>
-        </CSSTransition>
+          {children}
+        </Tooltip>
       </Portal>
     );
   }
 }
 
-Tooltip.propTypes = {
+TooltipContainer.propTypes = {
   children: PropTypes.node.isRequired,
   isVisible: PropTypes.bool,
   direction: PropTypes.oneOf(DIRECTIONS),
@@ -342,7 +200,7 @@ Tooltip.propTypes = {
   reduceBottom: PropTypes.number
 };
 
-Tooltip.defaultProps = {
+TooltipContainer.defaultProps = {
   isVisible: false,
   direction: AUTO,
   variant: LIGHT,
@@ -353,13 +211,14 @@ Tooltip.defaultProps = {
     offsetTop: 0,
     clientHeight: 0,
     offsetLeft: 0,
-    clientWidth: 0
+    clientWidth: 0,
+    windowScroll: 0,
+    windowWidth: 0,
+    windowHeight: 0
   },
   spaceFromMouse: SPACE_FROM_MOUSE,
   reduceTop: 0,
   reduceBottom: 0
 };
 
-Tooltip.displayName = "Tooltip";
-
-export default Tooltip;
+export default TooltipContainer;

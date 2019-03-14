@@ -26,17 +26,15 @@ export const StyledTooltip = styled.div`
   color: ${({ variant }) =>
     variant === DARK ? themes.global.white.base : themes.global.gray01};
   padding: ${spacing.cozy};
-  display: ${({ isVisible }) => (isVisible ? "block" : "none")};
   font-size: ${typography.size.uno};
-  transition: opacity 0.1s ${constants.easing.easeInQuad},
-    transform 0.1s ${constants.easing.easeInQuad};
+  opacity: 0;
 
   /* pseudoelement should fade in faster and fade out slower than tooltip */
-  :before {
+   :before {
     content: "";
     position: absolute;
-    transition: opacity 0.15s ${constants.easing.easeInQuad};
-    display: ${({ isVisible }) => (isVisible ? "inline-block" : "none")};
+    opacity: 0;
+    display: inline-block;
     border-right: ${({ variant }) =>
       variant === LIGHT ? `1px solid ${themes.global.gray02}` : ""};
     border-bottom: ${({ variant }) =>
@@ -47,6 +45,42 @@ export const StyledTooltip = styled.div`
     transform: translateY(-50%) rotate(-135deg);
     background-color: ${({ variant }) =>
       variant === DARK ? themes.global.darkFill : themes.global.white.base};
+  }
+
+  &.open-appear,
+  &.open-enter {
+    transition: opacity 300ms ${constants.easing.easeOutQuad},
+      transform 300ms ${constants.easing.easeOutQuad};
+  }
+
+  &.open-appear:before,
+  &.open-enter:before {
+    transition: opacity 300ms ${constants.easing.easeOutQuad};
+  }
+
+  &.open-enter-active,
+  &.open-appear-active {
+    transition: opacity 300ms ${constants.easing.easeOutQuad},
+      transform 300ms ${constants.easing.easeOutQuad};
+    opacity: 1;
+    ${({ direction }) => {
+      switch (direction) {
+        case TOP:
+          return "transform: translate(0, -10px);";
+        case BOTTOM:
+          return "transform: translate(0, 10px);";
+        case LEFT:
+          return "transform: translate(-10px, 0);";
+        case RIGHT:
+        default:
+          return "transform: translate(10px, 0);";
+      }
+    }};
+  }
+
+  &.open-enter-active:before,
+  &.open-appear-active:before {
+    opacity: 1;
     ${({ direction, arrowAdjustment }) => {
       switch (direction) {
         case TOP:
@@ -68,76 +102,95 @@ export const StyledTooltip = styled.div`
     }};
   }
 
-  &.open-enter &.open-enter:before,
-  &.open-appear,
-  &.open-appear:before {
-    transition: opacity 0.25s ${constants.easing.easeOutQuad};
-    display: block;
-    opacity: 0;
-  }
-
-  &.open-enter,
-  &.open-appear {
-    transition: opacity 0.3s ${constants.easing.easeOutQuad},
-      transform 0.3s ${constants.easing.easeOutQuad};
-    transform: translate(0, 10px);
+  &.open-enter-done,
+  &.open-appear-done {
+    opacity: 1;
     ${({ direction }) => {
       switch (direction) {
         case TOP:
-          return "transform: translate(0, 10px);";
-        case BOTTOM:
           return "transform: translate(0, -10px);";
+        case BOTTOM:
+          return "transform: translate(0, 10px);";
         case LEFT:
-          return "transform: translate(10px, 0);";
+          return "transform: translate(-10px, 0);";
         case RIGHT:
         default:
-          return "transform: translate(-10px, 0);";
+          return "transform: translate(10px, 0);";
       }
     }};
   }
 
-  &.open-enter-active,
-  &.open-enter-active:before,
-  &.open-appear-active,
-  &.open-appear-active:before {
-    transition: opacity 0.25s ${constants.easing.easeOutQuad};
-    display: block;
+  &.open-enter-done:before,
+  &.open-appear-done:before {
     opacity: 1;
+    ${({ direction, arrowAdjustment }) => {
+      switch (direction) {
+        case TOP:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px + ${arrowAdjustment}); bottom: -13px; transform: translateY(-50%) rotate(45deg);`;
+        case BOTTOM:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px + ${arrowAdjustment}); top: -1px; transform: translateY(-50%) rotate(-135deg);`;
+        case LEFT:
+          return `top: 10px; right: -${ARROW_WIDTH / 2 +
+            1}px; transform: translateY(0%) rotate(-45deg);`;
+        case RIGHT:
+          return `top: 10px; left: -${ARROW_WIDTH / 2 +
+            1}px; transform: translateY(0%) rotate(135deg);`;
+        default:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px); top: -1px; transform: translateY(-50%) rotate(-135deg);`;
+      }
+    }};
   }
 
-  &.open-enter-active,
-  &.open-appear-active {
-    transition: opacity 0.3s ${constants.easing.easeOutQuad},
-      transform 0.3s ${constants.easing.easeOutQuad};
-    transform: translate(0);
-  }
-
-  &.open-enter-done,
-  &.open-enter-done:before {
-    transition: opacity 0.25s ${constants.easing.easeOutQuad};
-    display: block;
+  &.open-exit {
+    transition: opacity 100ms ${constants.easing.easeOutQuad};
     opacity: 1;
+    ${({ direction }) => {
+      switch (direction) {
+        case TOP:
+          return "transform: translate(0, -10px);";
+        case BOTTOM:
+          return "transform: translate(0, 10px);";
+        case LEFT:
+          return "transform: translate(-10px, 0);";
+        case RIGHT:
+        default:
+          return "transform: translate(10px, 0);";
+      }
+    }};
   }
 
-  &.open-enter-done {
-    transition: opacity 0.3s ${constants.easing.easeOutQuad},
-      transform 0.3s ${constants.easing.easeOutQuad};
-  }
-
-  &.open-exit,
   &.open-exit:before {
-    display: block;
+    transition: opacity 100ms ${constants.easing.easeOutQuad};
     opacity: 1;
+    ${({ direction, arrowAdjustment }) => {
+      switch (direction) {
+        case TOP:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px + ${arrowAdjustment}); bottom: -13px; transform: translateY(-50%) rotate(45deg);`;
+        case BOTTOM:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px + ${arrowAdjustment}); top: -1px; transform: translateY(-50%) rotate(-135deg);`;
+        case LEFT:
+          return `top: 10px; right: -${ARROW_WIDTH / 2 +
+            1}px; transform: translateY(0%) rotate(-45deg);`;
+        case RIGHT:
+          return `top: 10px; left: -${ARROW_WIDTH / 2 +
+            1}px; transform: translateY(0%) rotate(135deg);`;
+        default:
+          return `left: calc(50% - ${ARROW_WIDTH /
+            2}px); top: -1px; transform: translateY(-50%) rotate(-135deg);`;
+      }
+    }};
   }
 
   &.open-exit-active,
-  &.open-exit-active:before {
-    display: block;
+  &.open-exit-done,
+  &.open-exit-active:before,
+  &.open-exit-done:before {
     opacity: 0;
-  }
-
-  &.open-exit-done {
-    transform: translate(0);
   }
 `;
 

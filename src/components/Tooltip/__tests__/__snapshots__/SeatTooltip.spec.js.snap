@@ -1,9 +1,9 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`SeatTooltip should match snapshot when has children 1`] = `
-.jhiaLu.open-enter .c0.open-enter:before,
-.jhiaLu.open-appear,
-.jhiaLu.open-appear:before {
+.grxSlK.open-enter .c0.open-enter:before,
+.grxSlK.open-appear,
+.grxSlK.open-appear:before {
   -webkit-transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   display: block;
@@ -11,14 +11,8 @@ exports[`SeatTooltip should match snapshot when has children 1`] = `
 }
 
 <div
-  className="c0 jhiaLu"
-  direction="auto"
-  style={
-    Object {
-      "padding": 0,
-      "width": "260px",
-    }
-  }
+  className="c0 grxSlK"
+  direction="bottom"
 >
   <div
     className="krQPGk"
@@ -85,9 +79,9 @@ exports[`SeatTooltip should match snapshot when has children 1`] = `
 `;
 
 exports[`SeatTooltip should match snapshot when no children and dark 1`] = `
-.jhiaLu.open-enter .c0.open-enter:before,
-.jhiaLu.open-appear,
-.jhiaLu.open-appear:before {
+.grxSlK.open-enter .c0.open-enter:before,
+.grxSlK.open-appear,
+.grxSlK.open-appear:before {
   -webkit-transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   display: block;
@@ -95,14 +89,8 @@ exports[`SeatTooltip should match snapshot when no children and dark 1`] = `
 }
 
 <div
-  className="c0 jhiaLu"
-  direction="auto"
-  style={
-    Object {
-      "padding": 0,
-      "width": "260px",
-    }
-  }
+  className="c0 grxSlK"
+  direction="bottom"
 >
   <div
     className="fShvgq"
@@ -161,9 +149,9 @@ exports[`SeatTooltip should match snapshot when no children and dark 1`] = `
 `;
 
 exports[`SeatTooltip should match snapshot when small and dark 1`] = `
-.jhiaLu.open-enter .c0.open-enter:before,
-.jhiaLu.open-appear,
-.jhiaLu.open-appear:before {
+.grxSlK.open-enter .c0.open-enter:before,
+.grxSlK.open-appear,
+.grxSlK.open-appear:before {
   -webkit-transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   transition: opacity 0.25s cubic-bezier(0.25,0.46,0.45,0.94);
   display: block;
@@ -171,14 +159,8 @@ exports[`SeatTooltip should match snapshot when small and dark 1`] = `
 }
 
 <div
-  className="c0 jhiaLu"
-  direction="auto"
-  style={
-    Object {
-      "padding": 0,
-      "width": "180px",
-    }
-  }
+  className="c0 grxSlK"
+  direction="bottom"
 >
   <div
     className="PUrql"

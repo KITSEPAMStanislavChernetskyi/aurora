@@ -27,9 +27,30 @@ rows:
 
 ```react
 ---
+<div style={{ display: 'flex', justifyContent: 'space-between' }}>
+  <TooltipDemo
+    direction="bottom"
+    text="Hover for Bottom Tooltip"
+  />
+  <TooltipDemo
+    direction="top"
+    text="Hover for Top Tooltip"
+  />
+  <TooltipDemo
+    direction="right"
+    text="Hover for Right Tooltip"
+  />
+  <TooltipDemo
+    direction="left"
+    text="Hover for Left Tooltip"
+  />
+</div>
+```
+
+```react
+---
 <div>
-  <TooltipDemo />
-  <TooltipDemo variant="dark" />
+  <TooltipRestrictedDemo />
 </div>
 ```
 

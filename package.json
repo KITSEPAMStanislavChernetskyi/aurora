@@ -18,7 +18,7 @@
   "license": "MIT",
   "scripts": {
     "build": "npm run build:dev && npm run build:prod",
-    "build:dev": "rollup -c config/rollup.dev.config.js",
+    "build:dev": "rollup -w -c config/rollup.dev.config.js",
     "build:prod": "rollup -c config/rollup.prod.config.js",
     "catalog-start": "NODE_ENV=development catalog start",
     "catalog-build": "catalog build  -u \"/aurora\"",
